@@ -1,0 +1,24 @@
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+@Service
+public class APIService {
+
+    private final RestTemplate restTemplate;
+    private final APIPropertyService apiPropertyService;
+
+    public APIService(RestTemplate restTemplate, APIPropertyService apiPropertyService) {
+        this.restTemplate = restTemplate;
+        this.apiPropertyService = apiPropertyService;
+    }
+
+    public String fetchInventory() {
+        String url = apiPropertyService.getAPIUrl("GET.inventory.all");
+        return restTemplate.getForObject(url, String.class);
+    }
+
+    public String fetchComponentById(String componentId) {
+        String url = apiPropertyService.getAPIUrl("GET.inventory.{componentId}").replace("{componentId}", componentId);
+        return restTemplate.getForObject(url, String.class);
+    }
+}
