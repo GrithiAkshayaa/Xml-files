@@ -1,19 +1,30 @@
-import _confd
-import confd
-from confd import dp
+import socket
+import json
 
-class PlatformStateHandler(dp.DataProvider):
-    def get_elem(self, tctx, kp):
-        """ Provide state data dynamically """
-        if "/components/component/state/oper-status" in str(kp):
-            return _confd.Value("ACTIVE")  # Example: return 'ACTIVE' status
-        elif "/components/component/state/temperature/instant" in str(kp):
-            return _confd.Value(45.3)  # Example: return temperature as 45.3
-        else:
-            raise confd.ConfDError(confd.ERR_NOEXISTS)
+# Mock state data
+def get_state():
+    return {
+        "component1": {"oper-status": "ACTIVE", "temperature": 45.3},
+        "component2": {"oper-status": "DOWN", "temperature": 30.5}
+    }
 
-# Register the callback
-dctx = dp.init_daemon("platform_state")
-dp.register_data_cb(dctx, "/components/component/state", PlatformStateHandler())
-dp.register_done(dctx)
-dp.start(dctx)
+# Handle incoming requests from ConfD
+def handle_request(request):
+    state_data = get_state()
+    if request in state_data:
+        return json.dumps(state_data[request])  # Convert dictionary to JSON
+    return json.dumps({})  # Return empty if not found
+
+# Create a socket to communicate with ConfD
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind(("127.0.0.1", 4565))  # ConfD IPC port
+server_socket.listen(5)
+
+print("State provider running...")
+
+while True:
+    conn, addr = server_socket.accept()
+    request = conn.recv(1024).decode()
+    response = handle_request(request)
+    conn.send(response.encode())
+    conn.close()
