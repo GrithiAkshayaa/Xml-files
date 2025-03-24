@@ -1,0 +1,8 @@
+confd_cmd -c "mset /components/component{amplifier1}/state/id AMP12345"
+confd_cmd -c "mset /components/component{amplifier1}/state/location Rack-1-Slot-2"
+confd_cmd -c "mset /components/component{amplifier1}/state/mfg-date 2025-03-24"
+confd_cmd -c "mset /components/component{amplifier1}/state/mfg-name Wipro"
+confd_cmd -c "mset /components/component{amplifier1}/state/serial-no SN987654"
+confd_cmd -c "mset /components/component{amplifier1}/state/part-no PN56789"
+confd_cmd -c "mset /components/component{amplifier1}/state/clei-code CLEI-001234"
+commit
