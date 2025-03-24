@@ -1,0 +1,22 @@
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api")
+public class APIController {
+
+    private final APIService apiService;
+
+    public APIController(APIService apiService) {
+        this.apiService = apiService;
+    }
+
+    @GetMapping("/inventory")
+    public String getAllInventory() {
+        return apiService.fetchInventory();
+    }
+
+    @GetMapping("/inventory/{componentId}")
+    public String getComponent(@PathVariable String componentId) {
+        return apiService.fetchComponentById(componentId);
+    }
+}
