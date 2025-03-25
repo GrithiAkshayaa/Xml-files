@@ -1,0 +1,57 @@
+   <component>
+        <name>slot-1</name>
+        <config>
+            <name>slot-1</name>
+        </config>
+    </component>
+
+    <component>
+        <name>slot-2</name>
+        <config>
+            <name>slot-2</name>
+        </config>
+    </component>
+
+    <component>
+        <name>amp-1-c1</name>
+        <config>
+            <name>amp-1-c1</name>
+        </config>
+    </component>
+
+    <component>
+        <name>amp-1-c2</name>
+        <config>
+            <name>amp-1-c2</name>
+        </config>
+    </component>
+
+    <!-- Adding 4 Ports for amplifier1 -->
+    <component>
+        <name>amplifier1-sigin</name>
+        <config>
+            <name>amplifier1-sigin</name>
+        </config>
+    </component>
+
+    <component>
+        <name>amplifier1-sigout</name>
+        <config>
+            <name>amplifier1-sigout</name>
+        </config>
+    </component>
+
+    <component>
+        <name>amplifier1-linein</name>
+        <config>
+            <name>amplifier1-linein</name>
+        </config>
+    </component>
+
+    <component>
+        <name>amplifier1-lineout</name>
+        <config>
+            <name>amplifier1-lineout</name>
+        </config>
+    </component>
+</components>
