@@ -26,7 +26,6 @@
         </config>
     </component>
 
-    <!-- Adding 4 Ports for amplifier1 -->
     <component>
         <name>amplifier1-sigin</name>
         <config>
