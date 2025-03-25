@@ -1,0 +1,64 @@
+................Hello msg................
+<?xml version="1.0" encoding="UTF-8"?>
+<hello xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+<capabilities>
+<capability>urn:ietf:params:netconf:base:1.0</capability>
+</capabilities>
+</hello>]]>]]>
+
+
+
+..........Get Config...........
+<?xml version="1.0" encoding="UTF-8"?>
+<rpc message-id="100" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+<get-config>
+<source><running/></source>
+</get-config>
+</rpc>]]>]]>
+
+
+
+
+
+............Get Config (Filter)..........
+<?xml version="1.0" encoding="UTF-8"?>
+<rpc message-id="100" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+<get-config>
+<source><running/></source>
+<filter type="subtree">
+<interfaces xmlns="urn:test"/>
+</filter>
+</get-config>
+</rpc>]]>]]>
+
+
+
+
+...........Get...............
+<?xml version="1.0" encoding="UTF-8"?>
+<rpc message-id="100" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+<get/>
+</rpc>]]>]]>
+
+
+
+
+
+.............Edit or Add..........
+<?xml version="1.0" encoding="UTF-8"?>
+<rpc message-id="100" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+<edit-config>
+<target>
+<running/>
+</target>
+<config>
+<interfaces xmlns="urn:test">
+<interface> 
+<name>etho</name>
+<enable>true</enable>
+<ip-address>192.168.1.3</ip-address>
+</interface>
+</interfaces>
+</config>
+</edit-config>
+</rpc>]]>]]>
