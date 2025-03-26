@@ -6,3 +6,12 @@ confd_cmd -c "mset /components/component{amplifier1}/state/serial-no SN987654"
 confd_cmd -c "mset /components/component{amplifier1}/state/part-no PN56789"
 confd_cmd -c "mset /components/component{amplifier1}/state/clei-code CLEI-001234"
 commit
+
+
+confd_cmd -c "mset /components/component{slot-1}/state/parent amplifier1"
+confd_cmd -c "mset /components/component{slot-2}/state/parent amplifier1"
+confd_cmd -c "mset /components/component{amplifier1-1-sigin}/state/parent slot-1"
+confd_cmd -c "mset /components/component{amplifier1-1-sigout}/state/parent slot-1"
+confd_cmd -c "mset /components/component{amplifier1-1-lineout}/state/parent slot-1"
+confd_cmd -c "mset /components/component{amplifier1-1-linein}/state/parent slot-1"
+confd_cmd -c "mset /components/component{amplifier1}/state/location amplifier1-slot-1"
