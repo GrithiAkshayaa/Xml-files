@@ -1,0 +1,234 @@
+Simulator Development Using ConfD and NETCONF
+
+Project Documentation
+
+
+---
+
+1. Introduction
+
+The Simulator Development project focuses on network simulation using ConfD and NETCONF. The primary objective is to configure and manage network elements such as amplifiers, transponders, and muxes using the openconfig-platform.yang model.
+
+Objectives:
+
+✅ Install and configure ConfD
+✅ Compile and validate the YANG model
+✅ Load configuration data using XML
+✅ Set and retrieve operational (state) data
+✅ Verify data using NETCONF queries
+
+This document provides a structured overview of the steps followed, commands executed, and methodologies implemented.
+
+
+---
+
+2. ConfD Installation and Setup
+
+2.1 Downloading ConfD
+
+ConfD was obtained from Cisco’s developer portal:
+🔗 Cisco ConfD Download
+
+Download Command:
+
+wget https://developer.cisco.com/fileMedia/download/<confd_package>.tar.gz -O confd-basic.tar.gz
+
+2.2 Extracting and Installing ConfD
+
+Extract the downloaded package:
+
+tar -xvzf confd-basic.tar.gz
+
+Move ConfD to the appropriate directory and set up the environment:
+
+sudo mv confd-basic-* /opt/confd
+export PATH=$PATH:/opt/confd/bin
+
+2.3 Starting ConfD
+
+Run ConfD in the foreground for debugging:
+
+/opt/confd/bin/confd --foreground
+
+For background execution:
+
+/opt/confd/bin/confd --start
+
+Verify that the NETCONF service is running:
+
+netstat -tulnp | grep 830
+
+
+---
+
+3. YANG Model Compilation and Tree Structure Generation
+
+3.1 Compiling the openconfig-platform.yang Model
+
+Compilation Command:
+
+/opt/confd/bin/confd -c /opt/confd/src/openconfig-platform.yang -o /opt/confd/etc/confd/openconfig-platform.fxs
+
+3.2 Generating the YANG Tree Structure
+
+To analyze the structure of the YANG model, pyang was used.
+
+Install pyang:
+
+sudo apt update && sudo apt install -y pyang
+
+Generate tree structure:
+
+pyang -f tree /opt/confd/src/openconfig-platform.yang > openconfig-platform.tree.txt
+
+This hierarchical view of the model helps in understanding read-write (rw) and read-only (ro) nodes.
+
+
+---
+
+4. Loading Configuration Data Using XML
+
+4.1 XML Configuration File
+
+The XML file was structured according to the openconfig-platform.yang model to configure an amplifier.
+
+Amplifier.xml:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<components xmlns="http://openconfig.net/yang/platform">
+    <component>
+        <name>amplifier1</name>
+        <config>
+            <name>amplifier1</name>
+        </config>
+        <properties>
+            <property>
+                <name>gain</name>
+                <config>
+                    <name>gain</name>
+                    <value>15</value>
+                </config>
+            </property>
+        </properties>
+    </component>
+</components>
+
+4.2 Loading XML Data into ConfD
+
+Data was loaded into ConfD using the following command:
+
+confd_cli -u admin -g admin <<EOF
+config
+load merge Amplifier.xml
+commit
+exit
+EOF
+
+Alternatively, the confd_load utility was used:
+
+confd_load -i -l /opt/confd/src/Amplifier.xml
+
+4.3 Verifying Loaded Data
+
+ConfD CLI:
+
+confd_cli -u admin -g admin -c "show configuration"
+
+NETCONF Query:
+
+ssh -p 2022 admin@localhost -s netconf
+netconf-console --get-config -x /components
+
+
+---
+
+5. Setting State Data (Read-Only Fields)
+
+5.1 Injecting State Data into ConfD
+
+Since state data is read-only, it was manually set using confd_cmd:
+
+confd_cmd -c "mset /components/component{amplifier1}/state/id 'AMP12345'"
+confd_cmd -c "mset /components/component{amplifier1}/state/location 'Rack-1-Slot-2'"
+confd_cmd -c "mset /components/component{amplifier1}/state/mfg-date '2025-03-24'"
+confd_cmd -c "mset /components/component{amplifier1}/state/mfg-name 'Wipro'"
+confd_cmd -c "mset /components/component{amplifier1}/state/serial-no 'SN987654'"
+confd_cmd -c "mset /components/component{amplifier1}/state/part-no 'PN56789'"
+confd_cmd -c "mset /components/component{amplifier1}/state/clei-code 'CLEI-001234'"
+commit
+
+Linking Components:
+
+confd_cmd -c "mset /components/component{slot-1}/state/parent 'amplifier1'"
+confd_cmd -c "mset /components/component{slot-2}/state/parent 'amplifier1'"
+
+
+---
+
+6. NETCONF Connectivity and Data Querying
+
+6.1 Establishing a NETCONF Session
+
+ssh -p 2022 admin@localhost -s netconf
+
+6.2 Querying Data Using NETCONF
+
+netconf-console --get-config -x /components
+
+This retrieves both configuration and state data.
+
+
+---
+
+7. Automation of Configuration
+
+A Python script (configure_simulator.py) was developed to automate the following tasks:
+✅ Starting ConfD
+✅ Compiling the YANG model
+✅ Loading XML configurations
+✅ Setting state data
+✅ Verifying the loaded data
+
+This script ensures efficiency and consistency in the configuration process.
+
+
+---
+
+8. Summary of Accomplishments
+
+✅ Installed ConfD from Cisco
+✅ Created and compiled the YANG model (openconfig-platform.yang)
+✅ Generated the YANG tree structure using pyang
+✅ Loaded configuration data via XML (Amplifier.xml)
+✅ Injected state data using confd_cmd
+✅ Established NETCONF connectivity and verified data using NETCONF queries
+✅ Successfully simulated amplifier, transponder, and mux components
+
+
+---
+
+9. Future Enhancements
+
+🔹 Alarm Notifications: Implementing an automated notification system to trigger alerts every 15 minutes.
+🔹 Configuration Expansion: Applying the same process to additional network elements such as transponders and muxes.
+🔹 Enhanced Automation: Extending the Python script to handle dynamic data updates.
+
+
+---
+
+10. Conclusion
+
+The Simulator Development project successfully:
+✅ Installed and configured ConfD
+✅ Compiled and validated the openconfig-platform.yang model
+✅ Loaded and verified configuration data using XML
+✅ Manually set state data for testing purposes
+✅ Queried data using NETCONF to ensure correctness
+
+This document serves as a comprehensive guide to our workflow, methodology, and execution strategy.
+
+
+---
+
+This structured, professional documentation eliminates unnecessary details while retaining all essential technical information. Let me know if further refinements are needed! 🚀
+
