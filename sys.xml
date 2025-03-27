@@ -1,0 +1,16 @@
+<config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <alarms xmlns="http://openconfig.net/yang/alarms">
+    <alarm>
+      <id>1</id>
+      <config>
+        <!-- Add any configurable attributes here if present in your YANG model -->
+      </config>
+    </alarm>
+    <alarm>
+      <id>2</id>
+      <config>
+        <!-- Add configurable attributes here -->
+      </config>
+    </alarm>
+  </alarms>
+</config>
