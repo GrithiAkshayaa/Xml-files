@@ -1,12 +1,7 @@
 import socket
 import _confd
 import _confd.dp as dp
-import _confd.error as confd_err
-
-# Debugging prints
-print("Using _confd module from:", _confd.__file__)
-print("Available attributes in _confd:", dir(_confd))
-print("CONF_PORT value:", getattr(_confd, "CONF_PORT", "Not Found"))
+import _confd.err as confd_err
 
 # Callback function to retrieve alarm data
 def get_alarms(tctx, kp):
@@ -15,41 +10,40 @@ def get_alarms(tctx, kp):
 
         # Example response structure
         alarms_data = [
-            {"id": 1, "severity": "critical", "message": "Link Down"},
-            {"id": 2, "severity": "warning", "message": "High CPU Usage"},
+            {"id": "1", "severity": "Critical", "message": "High link power"},
+            {"id": "2", "severity": "Warning", "message": "High CPU usage"}
         ]
 
         # Start a new transaction reply
         dp.data_reply_value(tctx, alarms_data)
-        return confd_err.CONFD_OK
+        return _confd.CONFD_OK
 
     except Exception as e:
         print(f"Error retrieving alarms: {e}")
-        return confd_err.CONFD_ERR
+        return _confd.CONFD_ERR
 
 # Register the data provider
 def register_data_provider():
     try:
-        # Get ConfD port
-        confd_port = _confd.CONF_PORT
+        # Get ConfD port (ensure this attribute exists)
+        confd_port = getattr(_confd, 'CONF_PORT', 4565)  # Default to 4565 if not found
 
         # Connect to ConfD
         addr = socket.getaddrinfo("127.0.0.1", confd_port, socket.AF_INET, socket.SOCK_STREAM)[0][4]
         ctlsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         ctlsock.connect(addr)
 
-        # Initialize data provider context
-        dctx = dp.init_daemon("alarm_daemon")
-        dp.connect(dctx, ctlsock, dp.CONTROL_SOCKET, "")
-        dp.register_data_cb(dctx, {
-            "get_elem": get_alarms
-        })
+        print("Connected to ConfD successfully on port", confd_port)
 
-        print("Data provider registered successfully.")
+        # Register the data provider (Modify if needed)
+        dp.init_daemon("alarms_provider")
+        dp.register_data_cb("alarms_container", get_alarms)
+
+        print("Data provider registered successfully")
 
     except Exception as e:
         print(f"Failed to register data provider: {e}")
 
-# Run the provider
+# Run the registration
 if __name__ == "__main__":
     register_data_provider()
