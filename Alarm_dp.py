@@ -1,45 +1,55 @@
+import socket
 import _confd
 import _confd.dp as dp
-import _confd.maapi as maapi
-import socket
-import struct
-import sys
+import _confd.error as confd_err
 
-# Alarm Data
-alarms_data = {
-    "alarm-001": {
-        "id": "alarm-001",
-        "resource": "CPU",
-        "text": "CPU usage exceeded 90%",
-        "time-created": 1711555123,
-        "severity": "CRITICAL",
-        "type-id": "cpu-overload"
-    }
-}
+# Debugging prints
+print("Using _confd module from:", _confd.__file__)
+print("Available attributes in _confd:", dir(_confd))
+print("CONF_PORT value:", getattr(_confd, "CONF_PORT", "Not Found"))
 
-# Callback function to provide alarm data
-def get_alarm_data(tctx, kp):
-    key = str(kp[0][1])  # Extract alarm ID
-    if key in alarms_data:
-        dp.data_reply_dict(tctx, alarms_data[key])
-    else:
-        dp.data_reply_error(tctx, _confd.ERR_NOEXISTS)
+# Callback function to retrieve alarm data
+def get_alarms(tctx, kp):
+    try:
+        print("Fetching alarms container...")
+
+        # Example response structure
+        alarms_data = [
+            {"id": 1, "severity": "critical", "message": "Link Down"},
+            {"id": 2, "severity": "warning", "message": "High CPU Usage"},
+        ]
+
+        # Start a new transaction reply
+        dp.data_reply_value(tctx, alarms_data)
+        return confd_err.CONFD_OK
+
+    except Exception as e:
+        print(f"Error retrieving alarms: {e}")
+        return confd_err.CONFD_ERR
 
 # Register the data provider
 def register_data_provider():
-    addr = _confd.addr("127.0.0.1", _confd.CONFD_PORT)
-    wsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    wsock.connect(addr)
+    try:
+        # Get ConfD port
+        confd_port = _confd.CONF_PORT
 
-    dctx = dp.init_daemon("alarm_data_provider")
-    dp.connect(dctx, wsock, dp.DP_WORKER)
-    dp.register_data_cb(dctx, dp.data_cbs(get_elem=get_alarm_data))
-    
-    dp.register_done(dctx)
-    print("Data provider for alarms started...")
-    
-    while True:
-        dp.fd_ready(dctx, wsock.fileno())
+        # Connect to ConfD
+        addr = socket.getaddrinfo("127.0.0.1", confd_port, socket.AF_INET, socket.SOCK_STREAM)[0][4]
+        ctlsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        ctlsock.connect(addr)
 
+        # Initialize data provider context
+        dctx = dp.init_daemon("alarm_daemon")
+        dp.connect(dctx, ctlsock, dp.CONTROL_SOCKET, "")
+        dp.register_data_cb(dctx, {
+            "get_elem": get_alarms
+        })
+
+        print("Data provider registered successfully.")
+
+    except Exception as e:
+        print(f"Failed to register data provider: {e}")
+
+# Run the provider
 if __name__ == "__main__":
     register_data_provider()
