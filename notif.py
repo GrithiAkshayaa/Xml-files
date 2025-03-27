@@ -1,5 +1,4 @@
 from ncclient import manager
-import xmltodict
 import time
 
 # ConfD NETCONF server details
@@ -9,8 +8,7 @@ NETCONF_USER = "admin"
 NETCONF_PASS = "admin"
 
 # Define NETCONF Notification XML for Alarm Event
-notification = f"""
-<notification xmlns="urn:ietf:params:xml:ns:netconf:notification:1.0">
+notification = f"""<notification xmlns="urn:ietf:params:xml:ns:netconf:notification:1.0">
     <eventTime>{time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}</eventTime>
     <alarms xmlns="http://openconfig.net/yang/alarms">
         <alarm>
@@ -22,8 +20,7 @@ notification = f"""
             <type-id>equipment-failure</type-id>
         </alarm>
     </alarms>
-</notification>
-"""
+</notification>"""
 
 # Connect to NETCONF server and send notification
 try:
@@ -34,7 +31,8 @@ try:
         password=NETCONF_PASS,
         hostkey_verify=False
     ) as m:
-        m.dispatch(xmltodict.parse(notification))
+        rpc_reply = m.dispatch(notification)
         print("✅ Alarm Notification Sent Successfully!")
+        print(rpc_reply)
 except Exception as e:
     print(f"❌ Error: {e}")
